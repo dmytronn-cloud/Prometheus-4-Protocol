@@ -5,8 +5,10 @@
 **Date Created:** September 17, 2025  
 **Status:** 🔴 CONFIDENTIAL - Pre-Patent Phase
 
-## 🚀 Live Demo
-Try it now: [Generate your unique AI personality](https://dmytronn-cloud.github.io/Prometheus-4-Protocol/prometheus-demo.html)
+## 🚀 Live Demos
+- **[v3 - Chat with AI](https://dmytronn-cloud.github.io/Prometheus-4-Protocol/prometheus-demo-v3.html)** - Full interactive chat
+- [v2 - Environmental](https://dmytronn-cloud.github.io/Prometheus-4-Protocol/prometheus-demo-v2.html) - With real-time conditions
+- [v1 - Basic](https://dmytronn-cloud.github.io/Prometheus-4-Protocol/prometheus-demo.html) - Original concept
 ---
 
 ## 🎯 Project Vision
