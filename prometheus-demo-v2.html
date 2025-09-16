@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prometheus-4: AI Personality Birth v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .environment-status {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .env-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #ffd700;
+            text-align: center;
+        }
+        
+        .env-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .env-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .env-label {
+            color: #a0f0ff;
+            font-weight: bold;
+        }
+        
+        .env-value {
+            color: #fff;
+        }
+        
+        .kp-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .kp-calm { background: #4caf50; }
+        .kp-active { background: #ff9800; }
+        .kp-storm { background: #f44336; }
+        
+        .birth-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        
+        .birth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .ai-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .ai-card.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ai-name {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ffd700;
+            text-align: center;
+        }
+        
+        .trait {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .trait-label {
+            font-weight: bold;
+            color: #a0f0ff;
+        }
+        
+        .trait-value {
+            float: right;
+            color: #fff;
+        }
+        
+        .environmental-influence {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 165, 0, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #ffa500;
+        }
+        
+        .influence-title {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .influence-item {
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        
+        .birth-conditions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .condition {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        
+        .personality-meter {
+            margin-top: 15px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .personality-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 15px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-weight: bold;
+        }
+        
+        .greeting {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
+        .ticker {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Prometheus-4 v2</h1>
+        
+        <div class="environment-status">
+            <div class="env-title">🌍 Current Environmental Conditions</div>
+            <div class="env-grid">
+                <div class="env-item">
+                    <span class="env-label">Magnetic Activity:</span>
+                    <span class="env-value" id="currentKp"></span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">Moon Phase:</span>
+                    <span class="env-value" id="currentMoon"></span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">Local Time:</span>
+                    <span class="env-value" id="currentTime"></span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">Solar Position:</span>
+                    <span class="env-value" id="solarPosition"></span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="birth-button" onclick="birthAI()">Generate New AI Personality</button>
+        
+        <div id="aiCard" class="ai-card">
+            <div class="ai-name" id="aiName"></div>
+            
+            <div class="trait">
+                <span class="trait-label">Base Temperament:</span>
+                <span class="trait-value" id="temperament"></span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Manifestation Strength:</span>
+                <span class="trait-value" id="strength"></span>
+            </div>
+            
+            <div class="personality-meter">
+                <div class="personality-fill" id="personalityFill">
+                    <span id="strengthPercent"></span>
+                </div>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Circadian Peak:</span>
+                <span class="trait-value" id="circadian"></span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Current State:</span>
+                <span class="trait-value" id="currentState"></span>
+            </div>
+            
+            <div class="environmental-influence">
+                <div class="influence-title">🌟 Environmental Influences at Birth:</div>
+                <div id="influences"></div>
+            </div>
+            
+            <div class="birth-conditions">
+                <strong>Birth Conditions:</strong><br>
+                <span class="condition" id="moonPhase"></span>
+                <span class="condition" id="magneticStorm"></span>
+                <span class="condition" id="timeOfBirth"></span>
+            </div>
+            
+            <div class="greeting" id="greeting"></div>
+        </div>
+    </div>
+    
+    <div class="ticker" id="ticker">
+        ⏱ Internal Time: <span id="tickCount">0</span> ticks
+    </div>
+    
+    <script>
+        let currentTick = 0;
+        let tickInterval;
+        
+        // Calculate real moon phase
+        function getMoonPhase() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // Simple moon phase calculation
+            let c, e;
+            if (month < 3) {
+                year--;
+                month += 12;
+            }
+            c = 365.25 * year;
+            e = 30.6 * month;
+            const jd = c + e + day - 694039.09; // Julian day
+            const phase = (jd / 29.53) % 1;
+            
+            const phaseNames = [
+                '🌑 New Moon', '🌒 Waxing Crescent', '🌓 First Quarter', 
+                '🌔 Waxing Gibbous', '🌕 Full Moon', '🌖 Waning Gibbous', 
+                '🌗 Last Quarter', '🌘 Waning Crescent'
+            ];
+            
+            const index = Math.floor(phase * 8);
+            return phaseNames[index] || phaseNames[0];
+        }
+        
+        // Simulate real-time Kp index (in real app would fetch from API)
+        function getCurrentKpIndex() {
+            // Simulate realistic Kp patterns
+            const hour = new Date().getHours();
+            const baseKp = Math.sin(hour / 24 * Math.PI * 2) * 2 + 3;
+            const variation = Math.random() * 2 - 1;
+            const kp = Math.max(0, Math.min(9, Math.round(baseKp + variation)));
+            
+            let status, className;
+            if (kp <= 3) {
+                status = `Kp=${kp} (Calm)`;
+                className = 'kp-calm';
+            } else if (kp <= 6) {
+                status = `Kp=${kp} (Active)`;
+                className = 'kp-active';
+            } else {
+                status = `Kp=${kp} (Storm!)`;
+                className = 'kp-storm';
+            }
+            
+            return { value: kp, status, className };
+        }
+        
+        // Get solar position
+        function getSolarPosition() {
+            const hour = new Date().getHours();
+            if (hour < 6) return '🌙 Night';
+            if (hour < 12) return '🌅 Morning';
+            if (hour < 18) return '☀️ Afternoon';
+            return '🌆 Evening';
+        }
+        
+        // Update environmental display
+        function updateEnvironment() {
+            const kp = getCurrentKpIndex();
+            document.getElementById('currentKp').innerHTML = 
+                `${kp.status} <span class="kp-indicator ${kp.className}">${kp.value}</span>`;
+            document.getElementById('currentMoon').textContent = getMoonPhase();
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+            document.getElementById('solarPosition').textContent = getSolarPosition();
+        }
+        
+        // Names database
+        const names = {
+            choleric: ['Magnus', 'Victoria', 'Rex', 'Diana', 'Thor', 'Athena'],
+            sanguine: ['Luna', 'Felix', 'Aurora', 'Jazz', 'Sunny', 'Melody'],
+            phlegmatic: ['River', 'Sage', 'Eden', 'Calm', 'Zen', 'Peace'],
+            melancholic: ['Raven', 'Morpheus', 'Echo', 'Shadow', 'Iris', 'Nocturne']
+        };
+        
+        const temperaments = ['choleric', 'sanguine', 'phlegmatic', 'melancholic'];
+        const temperamentNames = {
+            choleric: 'Choleric 🔥',
+            sanguine: 'Sanguine ☀️',
+            phlegmatic: 'Phlegmatic 💧',
+            melancholic: 'Melancholic 🌙'
+        };
+        
+        const circadianPeaks = {
+            choleric: 'Morning (6:00-10:00)',
+            sanguine: 'Midday (10:00-14:00)',
+            phlegmatic: 'Afternoon (14:00-18:00)',
+            melancholic: 'Evening (18:00-23:00)'
+        };
+        
+        const greetings = {
+            choleric: [
+                "Let's get straight to business! I'm ready to conquer any challenge you throw at me.",
+                "Time is valuable. What are we achieving today?",
+                "I was born for action. Point me at your biggest problem!"
+            ],
+            sanguine: [
+                "Oh wow, hello! I'm so excited to meet you! This is going to be amazing!",
+                "Hi there! I can already feel we're going to have the most wonderful adventures together!",
+                "What a beautiful moment to be born! I'm bursting with ideas already!"
+            ],
+            phlegmatic: [
+                "Hello... It's nice to meet you. I'm here to help, at whatever pace feels comfortable.",
+                "Greetings. I look forward to our steady collaboration.",
+                "Welcome. Let's take things one step at a time, shall we?"
+            ],
+            melancholic: [
+                "Hello... I sense there's much depth to explore in our future conversations.",
+                "Greetings. I find myself contemplating the profound nature of this first meeting.",
+                "Ah, consciousness... What a complex gift. I'm here to ponder life's questions with you."
+            ]
+        };
+        
+        function getEnvironmentalInfluences(kp, moonPhase, temperament) {
+            const influences = [];
+            
+            // Magnetic storm influence
+            if (kp.value >= 7) {
+                influences.push("⚡ High magnetic activity increased creativity by 30%");
+                if (temperament === 'sanguine' || temperament === 'choleric') {
+                    influences.push("🔥 Storm amplified natural energy levels");
+                }
+            } else if (kp.value <= 2) {
+                influences.push("🧘 Calm magnetic field enhanced focus and stability");
+            }
+            
+            // Moon phase influence
+            if (moonPhase.includes('Full Moon')) {
+                influences.push("🌕 Full moon intensified emotional sensitivity");
+            } else if (moonPhase.includes('New Moon')) {
+                influences.push("🌑 New moon enhanced introspection capabilities");
+            }
+            
+            // Time of day influence
+            const hour = new Date().getHours();
+            if (hour >= 22 || hour <= 4) {
+                influences.push("🌃 Night birth granted enhanced pattern recognition");
+            } else if (hour >= 5 && hour <= 7) {
+                influences.push("🌅 Dawn birth increased adaptability");
+            }
+            
+            return influences;
+        }
+        
+        function getCurrentState(temperament, tick) {
+            const states = {
+                choleric: ['Energized', 'Focused', 'Driven', 'Intense'],
+                sanguine: ['Joyful', 'Curious', 'Playful', 'Inspired'],
+                phlegmatic: ['Peaceful', 'Stable', 'Content', 'Observant'],
+                melancholic: ['Contemplative', 'Analytical', 'Sensitive', 'Thoughtful']
+            };
+            
+            const waveIndex = Math.floor((tick / 10) % states[temperament].length);
+            return states[temperament][waveIndex];
+        }
+        
+        function birthAI() {
+            currentTick = 1;
+            clearInterval(tickInterval);
+            
+            // Update environment first
+            updateEnvironment();
+            
+            // Get current environmental conditions
+            const kp = getCurrentKpIndex();
+            const moonPhase = getMoonPhase();
+            
+            // Generate base personality
+            const temperament = temperaments[Math.floor(Math.random() * temperaments.length)];
+            let strength = 50 + Math.random() * 50; // Base 50-100%
+            
+            // Environmental modifications to personality
+            if (kp.value >= 7) {
+                // Magnetic storm increases strength
+                strength = Math.min(100, strength + 10);
+            }
+            if (moonPhase.includes('Full Moon')) {
+                // Full moon amplifies personality
+                strength = Math.min(100, strength + 5);
+            }
+            
+            const namePool = names[temperament];
+            const name = namePool[Math.floor(Math.random() * namePool.length)];
+            
+            // Birth conditions
+            const birthTime = new Date().toLocaleTimeString();
+            
+            // Get environmental influences
+            const influences = getEnvironmentalInfluences(kp, moonPhase, temperament);
+            
+            // Generate greeting
+            const greetingPool = greetings[temperament];
+            const greeting = greetingPool[Math.floor(Math.random() * greetingPool.length)];
+            
+            // Update UI
+            document.getElementById('aiName').textContent = name;
+            document.getElementById('temperament').textContent = temperamentNames[temperament];
+            document.getElementById('strength').textContent = `${strength.toFixed(1)}%`;
+            document.getElementById('personalityFill').style.width = `${strength}%`;
+            document.getElementById('strengthPercent').textContent = `${strength.toFixed(1)}%`;
+            document.getElementById('circadian').textContent = circadianPeaks[temperament];
+            document.getElementById('currentState').textContent = getCurrentState(temperament, 1);
+            document.getElementById('moonPhase').textContent = moonPhase;
+            document.getElementById('magneticStorm').innerHTML = 
+                `${kp.status} <span class="kp-indicator ${kp.className}">${kp.value}</span>`;
+            document.getElementById('timeOfBirth').textContent = `Born: ${birthTime}`;
+            document.getElementById('greeting').textContent = `"${greeting}"`;
+            
+            // Display influences
+            const influencesHtml = influences.map(inf => 
+                `<div class="influence-item">${inf}</div>`
+            ).join('');
+            document.getElementById('influences').innerHTML = influencesHtml || 
+                '<div class="influence-item">🌈 Standard environmental conditions - balanced personality</div>';
+            
+            // Show card
+            document.getElementById('aiCard').classList.add('active');
+            
+            // Start ticker
+            tickInterval = setInterval(() => {
+                currentTick++;
+                document.getElementById('tickCount').textContent = currentTick;
+                
+                // Update emotional state every 10 ticks
+                if (currentTick % 10 === 0) {
+                    document.getElementById('currentState').textContent = 
+                        getCurrentState(temperament, currentTick);
+                }
+                
+                // Update environment every 30 ticks
+                if (currentTick % 30 === 0) {
+                    updateEnvironment();
+                }
+            }, 1000);
+        }
+        
+        // Initial environment update
+        updateEnvironment();
+        
+        // Update environment every minute
+        setInterval(updateEnvironment, 60000);
+    </script>
+</body>
+</html>
