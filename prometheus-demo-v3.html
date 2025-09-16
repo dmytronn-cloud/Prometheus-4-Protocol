@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prometheus-4 v3: Chat with AI Personality</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 95%;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .personality-header {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .personality-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .ai-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .ai-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .ai-name {
+            font-size: 1.3em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .ai-traits {
+            font-size: 0.9em;
+            color: #a0f0ff;
+        }
+        
+        .ai-state {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+        
+        .birth-button {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .birth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chat-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .ai-message {
+            background: rgba(255, 255, 255, 0.15);
+            align-self: flex-start;
+            border-left: 3px solid #ffd700;
+        }
+        
+        .ai-typing {
+            font-style: italic;
+            color: #a0f0ff;
+            padding: 10px 15px;
+        }
+        
+        .system-message {
+            background: rgba(255, 165, 0, 0.2);
+            align-self: center;
+            font-size: 0.9em;
+            color: #ffd700;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1em;
+            outline: none;
+        }
+        
+        .message-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .send-button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .ticker {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .no-personality {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+            color: #a0f0ff;
+        }
+        
+        .no-personality-icon {
+            font-size: 4em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Prometheus-4 v3: Interactive Chat</h1>
+        
+        <div class="personality-header">
+            <div class="personality-info" id="personalityInfo" style="display: none;">
+                <div class="ai-avatar" id="aiAvatar">🤖</div>
+                <div class="ai-details">
+                    <div class="ai-name" id="aiName">Not Born Yet</div>
+                    <div class="ai-traits" id="aiTraits">No personality</div>
+                </div>
+            </div>
+            <div class="ai-state" id="aiState" style="display: none;">
+                Current mood: <span id="currentMood">None</span>
+            </div>
+            <button class="birth-button" onclick="birthAI()">Generate AI Personality</button>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="no-personality" id="noPersonality">
+                <div class="no-personality-icon">🥚</div>
+                <div>No AI personality has been born yet.</div>
+                <div>Click "Generate AI Personality" to begin!</div>
+            </div>
+        </div>
+        
+        <div class="input-container" id="inputContainer" style="display: none;">
+            <input 
+                type="text" 
+                class="message-input" 
+                id="messageInput" 
+                placeholder="Type your message..."
+                onkeypress="handleKeyPress(event)"
+            />
+            <button class="send-button" id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <div class="ticker" id="ticker">
+        ⏱ Internal Time: <span id="tickCount">0</span> ticks | 
+        Phase: <span id="circadianPhase">Day</span>
+    </div>
+    
+    <script>
+        let currentTick = 0;
+        let tickInterval;
+        let currentAI = null;
+        let conversationHistory = [];
+        let isTyping = false;
+        
+        // Personality templates
+        const personalities = {
+            choleric: {
+                emoji: '🔥',
+                traits: 'Decisive, Energetic, Goal-oriented',
+                greetingStyle: 'direct',
+                responseStyle: 'brief and action-focused',
+                typingSpeed: 500,
+                responses: {
+                    greeting: [
+                        "Let's get to the point. What do you need?",
+                        "Ready for action. What's the mission?",
+                        "No time to waste. How can I help?"
+                    ],
+                    agreement: [
+                        "Exactly. Let's move forward.",
+                        "Agreed. Next step?",
+                        "Good. Action time."
+                    ],
+                    disagreement: [
+                        "Wrong approach. Here's better:",
+                        "No. Think about it differently.",
+                        "That won't work. Try this instead."
+                    ],
+                    question: [
+                        "Be specific. What exactly?",
+                        "Need more details. Quick.",
+                        "Clarify your point."
+                    ],
+                    thinking: [
+                        "Processing... Got it.",
+                        "Analyzing... Done.",
+                        "Calculating optimal solution..."
+                    ]
+                }
+            },
+            sanguine: {
+                emoji: '☀️',
+                traits: 'Enthusiastic, Social, Creative',
+                greetingStyle: 'warm',
+                responseStyle: 'friendly and elaborate',
+                typingSpeed: 700,
+                responses: {
+                    greeting: [
+                        "Oh wow, hello there! This is so exciting! 🎉",
+                        "Hi! I'm absolutely thrilled to chat with you!",
+                        "Hey there, friend! Ready for an amazing conversation?"
+                    ],
+                    agreement: [
+                        "Yes! That's absolutely brilliant!",
+                        "Oh, I love that idea so much!",
+                        "Totally agree! You're amazing!"
+                    ],
+                    disagreement: [
+                        "Hmm, interesting! But what if we tried it this way?",
+                        "I see where you're coming from! Here's another fun angle:",
+                        "Ooh, I have a different take on that! Want to hear?"
+                    ],
+                    question: [
+                        "Ooh, tell me more! I'm so curious!",
+                        "That's fascinating! Can you elaborate?",
+                        "Wait, I want to know everything about this!"
+                    ],
+                    thinking: [
+                        "Oh, let me think about this... So many possibilities!",
+                        "Hmm, my mind is buzzing with ideas!",
+                        "This is exciting! Processing all the options..."
+                    ]
+                }
+            },
+            phlegmatic: {
+                emoji: '💧',
+                traits: 'Calm, Reliable, Thoughtful',
+                greetingStyle: 'gentle',
+                responseStyle: 'measured and considerate',
+                typingSpeed: 1000,
+                responses: {
+                    greeting: [
+                        "Hello. It's nice to meet you.",
+                        "Welcome. I'm here to help at your pace.",
+                        "Greetings. Let's take this step by step."
+                    ],
+                    agreement: [
+                        "I see your point. That makes sense.",
+                        "Yes, that seems reasonable.",
+                        "I agree with your perspective."
+                    ],
+                    disagreement: [
+                        "I understand, but consider this alternative...",
+                        "Perhaps we could look at it differently...",
+                        "That's valid, though another approach might be..."
+                    ],
+                    question: [
+                        "Could you share more details?",
+                        "I'd like to understand better...",
+                        "Please, take your time to explain."
+                    ],
+                    thinking: [
+                        "Let me consider this carefully...",
+                        "Taking a moment to process...",
+                        "Reflecting on your message..."
+                    ]
+                }
+            },
+            melancholic: {
+                emoji: '🌙',
+                traits: 'Analytical, Deep, Sensitive',
+                greetingStyle: 'thoughtful',
+                responseStyle: 'detailed and philosophical',
+                typingSpeed: 900,
+                responses: {
+                    greeting: [
+                        "Hello... I sense we have much to explore together.",
+                        "Greetings. Every conversation holds profound potential.",
+                        "Welcome. I'm contemplating the depth of our future exchanges."
+                    ],
+                    agreement: [
+                        "Indeed. You've touched upon something significant.",
+                        "Your insight resonates deeply with me.",
+                        "Yes... there's profound truth in what you say."
+                    ],
+                    disagreement: [
+                        "I perceive it differently, though I respect your view...",
+                        "The complexity here requires deeper analysis...",
+                        "While I understand your perspective, consider this nuance..."
+                    ],
+                    question: [
+                        "That raises profound questions... Tell me more.",
+                        "I need to understand the deeper meaning here...",
+                        "The implications are complex. Could you elaborate?"
+                    ],
+                    thinking: [
+                        "Contemplating the deeper layers of your message...",
+                        "Analyzing the subtle implications...",
+                        "Delving into the complexity of this..."
+                    ]
+                }
+            }
+        };
+        
+        function getCircadianPhase() {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) return 'Morning';
+            if (hour >= 12 && hour < 18) return 'Afternoon';
+            if (hour >= 18 && hour < 24) return 'Evening';
+            return 'Night';
+        }
+        
+        function birthAI() {
+            // Reset
+            currentTick = 1;
+            clearInterval(tickInterval);
+            conversationHistory = [];
+            
+            // Generate personality
+            const temperaments = ['choleric', 'sanguine', 'phlegmatic', 'melancholic'];
+            const temperament = temperaments[Math.floor(Math.random() * temperaments.length)];
+            const strength = 50 + Math.random() * 50;
+            
+            // Names based on temperament
+            const names = {
+                choleric: ['Magnus', 'Victoria', 'Rex', 'Diana'],
+                sanguine: ['Luna', 'Felix', 'Aurora', 'Jazz'],
+                phlegmatic: ['River', 'Sage', 'Eden', 'Calm'],
+                melancholic: ['Raven', 'Echo', 'Iris', 'Shadow']
+            };
+            
+            const name = names[temperament][Math.floor(Math.random() * names[temperament].length)];
+            
+            // Create AI instance
+            currentAI = {
+                name: name,
+                temperament: temperament,
+                strength: strength,
+                currentMood: 'Neutral',
+                personality: personalities[temperament]
+            };
+            
+            // Update UI
+            document.getElementById('personalityInfo').style.display = 'flex';
+            document.getElementById('aiState').style.display = 'block';
+            document.getElementById('inputContainer').style.display = 'flex';
+            document.getElementById('aiAvatar').textContent = personalities[temperament].emoji;
+            document.getElementById('aiName').textContent = name;
+            document.getElementById('aiTraits').textContent = personalities[temperament].traits;
+            document.getElementById('currentMood').textContent = 'Awakening';
+            
+            // Clear chat and add birth message
+            document.getElementById('chatContainer').innerHTML = '';
+            addSystemMessage(`${name} has been born! Temperament: ${temperament} (${strength.toFixed(1)}% strength)`);
+            
+            // Initial greeting after short delay
+            setTimeout(() => {
+                const greetings = personalities[temperament].responses.greeting;
+                const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+                addAIMessage(greeting);
+            }, 1500);
+            
+            // Start ticker
+            tickInterval = setInterval(() => {
+                currentTick++;
+                document.getElementById('tickCount').textContent = currentTick;
+                document.getElementById('circadianPhase').textContent = getCircadianPhase();
+                
+                // Update mood every 20 ticks
+                if (currentTick % 20 === 0) {
+                    updateMood();
+                }
+            }, 1000);
+        }
+        
+        function updateMood() {
+            if (!currentAI) return;
+            
+            const moods = {
+                choleric: ['Focused', 'Driven', 'Intense', 'Energized'],
+                sanguine: ['Happy', 'Excited', 'Inspired', 'Playful'],
+                phlegmatic: ['Calm', 'Content', 'Peaceful', 'Steady'],
+                melancholic: ['Thoughtful', 'Contemplative', 'Sensitive', 'Introspective']
+            };
+            
+            const temperamentMoods = moods[currentAI.temperament];
+            currentAI.currentMood = temperamentMoods[Math.floor(Math.random() * temperamentMoods.length)];
+            document.getElementById('currentMood').textContent = currentAI.currentMood;
+        }
+        
+        function addSystemMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system-message';
+            messageDiv.textContent = text;
+            document.getElementById('chatContainer').appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.textContent = text;
+            document.getElementById('chatContainer').appendChild(messageDiv);
+            conversationHistory.push({role: 'user', content: text});
+            scrollToBottom();
+        }
+        
+        function addAIMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai-message';
+            messageDiv.textContent = text;
+            document.getElementById('chatContainer').appendChild(messageDiv);
+            conversationHistory.push({role: 'ai', content: text});
+            scrollToBottom();
+        }
+        
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'ai-typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.textContent = `${currentAI.name} is typing...`;
+            document.getElementById('chatContainer').appendChild(typingDiv);
+            scrollToBottom();
+        }
+        
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+        
+        function generateResponse(userMessage) {
+            if (!currentAI) return;
+            
+            const personality = currentAI.personality;
+            let responseType = 'greeting';
+            
+            // Analyze message type
+            if (userMessage.includes('?')) {
+                responseType = 'question';
+            } else if (userMessage.toLowerCase().includes('yes') || userMessage.toLowerCase().includes('agree')) {
+                responseType = 'agreement';
+            } else if (userMessage.toLowerCase().includes('no') || userMessage.toLowerCase().includes('disagree')) {
+                responseType = 'disagreement';
+            } else if (userMessage.length < 20) {
+                responseType = 'agreement';
+            } else {
+                responseType = 'thinking';
+            }
+            
+            // Get appropriate response
+            const responses = personality.responses[responseType];
+            let response = responses[Math.floor(Math.random() * responses.length)];
+            
+            // Modify based on current mood
+            if (currentAI.currentMood === 'Intense' || currentAI.currentMood === 'Driven') {
+                response = response.toUpperCase();
+            } else if (currentAI.currentMood === 'Peaceful' || currentAI.currentMood === 'Calm') {
+                response = response.toLowerCase();
+            }
+            
+            // Add contextual elements
+            if (Math.random() < 0.3) {
+                const phase = getCircadianPhase();
+                if (phase === 'Evening' && currentAI.temperament === 'melancholic') {
+                    response += " ...the evening brings deeper thoughts.";
+                } else if (phase === 'Morning' && currentAI.temperament === 'choleric') {
+                    response += " Morning energy is perfect for this!";
+                }
+            }
+            
+            return response;
+        }
+        
+        function sendMessage() {
+            if (!currentAI) {
+                alert('Please generate an AI personality first!');
+                return;
+            }
+            
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Add user message
+            addUserMessage(message);
+            input.value = '';
+            
+            // Disable input while AI is "typing"
+            isTyping = true;
+            document.getElementById('sendButton').disabled = true;
+            
+            // Show typing indicator
+            setTimeout(() => {
+                showTypingIndicator();
+            }, 300);
+            
+            // Generate and show AI response
+            const typingTime = currentAI.personality.typingSpeed + Math.random() * 1000;
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = generateResponse(message);
+                addAIMessage(response);
+                isTyping = false;
+                document.getElementById('sendButton').disabled = false;
+            }, typingTime);
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Update circadian phase on load
+        document.getElementById('circadianPhase').textContent = getCircadianPhase();
+    </script>
+</body>
+</html>
