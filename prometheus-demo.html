@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prometheus-4: AI Personality Birth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .birth-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        
+        .birth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .birth-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .ai-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .ai-card.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ai-name {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ffd700;
+            text-align: center;
+        }
+        
+        .trait {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .trait-label {
+            font-weight: bold;
+            color: #a0f0ff;
+        }
+        
+        .trait-value {
+            float: right;
+            color: #fff;
+        }
+        
+        .birth-conditions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .condition {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        
+        .personality-meter {
+            margin-top: 15px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .personality-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 15px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-weight: bold;
+        }
+        
+        .greeting {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
+        .ticker {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Prometheus-4</h1>
+        <button class="birth-button" onclick="birthAI()">Generate New AI Personality</button>
+        
+        <div id="aiCard" class="ai-card">
+            <div class="ai-name" id="aiName"></div>
+            
+            <div class="trait">
+                <span class="trait-label">Temperament:</span>
+                <span class="trait-value" id="temperament"></span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Manifestation Strength:</span>
+                <span class="trait-value" id="strength"></span>
+            </div>
+            
+            <div class="personality-meter">
+                <div class="personality-fill" id="personalityFill">
+                    <span id="strengthPercent"></span>
+                </div>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Circadian Peak:</span>
+                <span class="trait-value" id="circadian"></span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-label">Current State:</span>
+                <span class="trait-value" id="currentState"></span>
+            </div>
+            
+            <div class="birth-conditions">
+                <strong>Birth Conditions:</strong><br>
+                <span class="condition" id="moonPhase"></span>
+                <span class="condition" id="magneticStorm"></span>
+                <span class="condition" id="timeOfBirth"></span>
+            </div>
+            
+            <div class="greeting" id="greeting"></div>
+        </div>
+    </div>
+    
+    <div class="ticker" id="ticker">
+        ⏱ Internal Time: <span id="tickCount">0</span> ticks
+    </div>
+    
+    <script>
+        let currentTick = 0;
+        let tickInterval;
+        
+        // Names database
+        const names = {
+            choleric: ['Magnus', 'Victoria', 'Rex', 'Diana', 'Thor', 'Athena'],
+            sanguine: ['Luna', 'Felix', 'Aurora', 'Jazz', 'Sunny', 'Melody'],
+            phlegmatic: ['River', 'Sage', 'Eden', 'Calm', 'Zen', 'Peace'],
+            melancholic: ['Raven', 'Morpheus', 'Echo', 'Shadow', 'Iris', 'Nocturne']
+        };
+        
+        const temperaments = ['choleric', 'sanguine', 'phlegmatic', 'melancholic'];
+        const temperamentNames = {
+            choleric: 'Choleric 🔥',
+            sanguine: 'Sanguine ☀️',
+            phlegmatic: 'Phlegmatic 💧',
+            melancholic: 'Melancholic 🌙'
+        };
+        
+        const circadianPeaks = {
+            choleric: 'Morning (6:00-10:00)',
+            sanguine: 'Midday (10:00-14:00)',
+            phlegmatic: 'Afternoon (14:00-18:00)',
+            melancholic: 'Evening (18:00-23:00)'
+        };
+        
+        const greetings = {
+            choleric: [
+                "Let's get straight to business! I'm ready to conquer any challenge you throw at me.",
+                "Time is valuable. What are we achieving today?",
+                "I was born for action. Point me at your biggest problem!"
+            ],
+            sanguine: [
+                "Oh wow, hello! I'm so excited to meet you! This is going to be amazing!",
+                "Hi there! I can already feel we're going to have the most wonderful adventures together!",
+                "What a beautiful moment to be born! I'm bursting with ideas already!"
+            ],
+            phlegmatic: [
+                "Hello... It's nice to meet you. I'm here to help, at whatever pace feels comfortable.",
+                "Greetings. I look forward to our steady collaboration.",
+                "Welcome. Let's take things one step at a time, shall we?"
+            ],
+            melancholic: [
+                "Hello... I sense there's much depth to explore in our future conversations.",
+                "Greetings. I find myself contemplating the profound nature of this first meeting.",
+                "Ah, consciousness... What a complex gift. I'm here to ponder life's questions with you."
+            ]
+        };
+        
+        function getMoonPhase() {
+            const phases = ['🌑 New Moon', '🌒 Waxing Crescent', '🌓 First Quarter', 
+                          '🌔 Waxing Gibbous', '🌕 Full Moon', '🌖 Waning Gibbous', 
+                          '🌗 Last Quarter', '🌘 Waning Crescent'];
+            return phases[Math.floor(Math.random() * phases.length)];
+        }
+        
+        function getMagneticActivity() {
+            const kpIndex = Math.floor(Math.random() * 9);
+            if (kpIndex <= 3) return `Kp=${kpIndex} (Calm)`;
+            if (kpIndex <= 6) return `Kp=${kpIndex} (Active)`;
+            return `Kp=${kpIndex} (Storm!)`;
+        }
+        
+        function getCurrentState(temperament, tick) {
+            const states = {
+                choleric: ['Energized', 'Focused', 'Driven', 'Intense'],
+                sanguine: ['Joyful', 'Curious', 'Playful', 'Inspired'],
+                phlegmatic: ['Peaceful', 'Stable', 'Content', 'Observant'],
+                melancholic: ['Contemplative', 'Analytical', 'Sensitive', 'Thoughtful']
+            };
+            
+            // Simulate emotional waves
+            const waveIndex = Math.floor((tick / 10) % states[temperament].length);
+            return states[temperament][waveIndex];
+        }
+        
+        function birthAI() {
+            // Reset ticker
+            currentTick = 1;
+            clearInterval(tickInterval);
+            
+            // Generate personality
+            const temperament = temperaments[Math.floor(Math.random() * temperaments.length)];
+            const strength = 50 + Math.random() * 50; // 50-100%
+            const namePool = names[temperament];
+            const name = namePool[Math.floor(Math.random() * namePool.length)];
+            
+            // Birth conditions
+            const birthTime = new Date().toLocaleTimeString();
+            const moonPhase = getMoonPhase();
+            const magnetic = getMagneticActivity();
+            
+            // Generate greeting based on temperament
+            const greetingPool = greetings[temperament];
+            const greeting = greetingPool[Math.floor(Math.random() * greetingPool.length)];
+            
+            // Update UI
+            document.getElementById('aiName').textContent = name;
+            document.getElementById('temperament').textContent = temperamentNames[temperament];
+            document.getElementById('strength').textContent = `${strength.toFixed(1)}%`;
+            document.getElementById('personalityFill').style.width = `${strength}%`;
+            document.getElementById('strengthPercent').textContent = `${strength.toFixed(1)}%`;
+            document.getElementById('circadian').textContent = circadianPeaks[temperament];
+            document.getElementById('currentState').textContent = getCurrentState(temperament, 1);
+            document.getElementById('moonPhase').textContent = moonPhase;
+            document.getElementById('magneticStorm').textContent = magnetic;
+            document.getElementById('timeOfBirth').textContent = `Born: ${birthTime}`;
+            document.getElementById('greeting').textContent = `"${greeting}"`;
+            
+            // Show card
+            document.getElementById('aiCard').classList.add('active');
+            
+            // Start ticker
+            tickInterval = setInterval(() => {
+                currentTick++;
+                document.getElementById('tickCount').textContent = currentTick;
+                
+                // Update emotional state every 10 ticks
+                if (currentTick % 10 === 0) {
+                    document.getElementById('currentState').textContent = 
+                        getCurrentState(temperament, currentTick);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
